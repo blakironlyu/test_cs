@@ -8,5 +8,6 @@ namespace test_cs
 {
     class Class1
     {
+        public int test;
     }
 }
