@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Collections;
+using System.IO;
 
 namespace test_cs {
     class Program {
@@ -46,17 +48,132 @@ namespace test_cs {
             //Expression<Func<string, int>> exp = ( s ) => s.CompareTo( "" );
             //Console.WriteLine( exp );
 
-            Thermo thermo = new Thermo();
-            Heater heater = new Heater(50);
-            Cooler cooler = new Cooler( 40 );
-            thermo.OnChangeTemp += heater.OnTempChange;
-            thermo.OnChangeTemp += cooler.OnTempChange;
+            //Thermo thermo = new Thermo();
+            //Heater heater = new Heater(50);
+            //Cooler cooler = new Cooler( 40 );
+            //thermo.OnChangeTemp += heater.OnTempChange;
+            //thermo.OnChangeTemp += cooler.OnTempChange;
 
-            thermo.CurTemp = 20;
+            //thermo.CurTemp = 20;
 
+            //var test = new
+            //{
+            //    one = "haha",
+            //    two = "1234"
+            //};
+
+            //int[] arr = new int[] { 1,2,3,4,5};
+            //IEnumerable<Heater> e = new Heater[] { new Heater(10), new Heater(20), new Heater(30), new Heater(40), new Heater(50) };
+            //e = e.Where( i => i.Temp > 20 );
+            //IEnumerable<string> s = e.Select( heater => string.Format("{0}", heater.Temp) );
+
+            //foreach(string i in s)
+            //{
+            //    Console.WriteLine( i );
+            //}
+
+            //IEnumerable<int> items = new int[]{ 5,1,3,2,4 };
+            //IEnumerable<int> items2 = items.OrderBy( i => i );
+
+            //foreach( int j in items2)
+            //{
+            //    Console.WriteLine( j );
+            //}
+            //Console.WriteLine( "line: {0}", items.Count() );
+
+            //Entity[] eList = { new Entity( 3, 5 ), new Entity( 1, 1 ), new Entity( 1,2 ), new Entity( 4, 2 ), new Entity( 1, 3 ) };
+            //IEnumerable<Entity> eList2 = eList.OrderBy( entity => entity.Key ).ThenBy( entity => entity.Value );
+
+            //foreach( Entity e in eList2 )
+            //{
+            //    Console.WriteLine( "{0} {1}", e.Key, e.Value );
+            //}
+            Employee[] emp = { new Employee( "name1", 1 ), new Employee( "name2", 1 ), new Employee( "name3", 2 ), new Employee( "name4", 2 ), new Employee( "name5", 3 ) };
+            Department[] depart = { new Department( 1, "one" ), new Department( 2, "two" ), new Department( 3, "three" ) };
+
+            //var data = emp.Join( depart, employee => employee.DepartNum, department => department.DepartNum, ( employee, department ) => new { employee.Name, department.DepartName } );
+            //data = data.OrderBy( d => d.DepartName );
+            //foreach( var d in data )
+            //{
+            //    Console.WriteLine( "{0} {1}", d.Name, d.DepartName );
+            //}
+
+            //IEnumerable<IGrouping<int, Employee>> group = emp.GroupBy( e => e.DepartNum );
+
+            //foreach( IGrouping<int, Employee> g in group)
+            //{
+            //    Console.WriteLine("{0} {1}",g.Count(),g.Key );
+            //}
+
+            //var groupJoin = depart.GroupJoin( emp, d => d.DepartNum, e => e.DepartNum, ( d, e ) => new { d.DepartNum, d.DepartName, Employees = e } );
+
+            //foreach( var group in groupJoin)
+            //{
+            //    Console.WriteLine( "{0} {1}", group.DepartNum, group.DepartName );
+            //    foreach( Employee e in group.Employees )
+            //    {
+            //        Console.WriteLine( "\t{0}", e.Name );
+            //    }
+            //}
+
+            var arr = new[] { new { Name="group1", Member=new string[] { "one", "two"} }, new { Name = "group2", Member = new string[] { "three", "four" } } };
+            ////IEnumerable<string> sarr = arr.SelectMany( a => a.Member );
+            //IEnumerable<char> sarr = emp.SelectMany( e => e.Name );
+
+            //foreach( char s in sarr )
+            //{
+            //    Console.WriteLine( s );
+            //}
+            //int[] arr1 = new int[] { 1, 2, 3, 4, 5 };
+            //IEnumerable<int> arr2 =
+            //    from i in arr1
+            //    where i < 5
+            //    select i
+            //    into j
+            //        where j > 1
+            //        select j;
+
+            IEnumerable<string> name = ( from m in typeof( Enumerable ).GetMembers( System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public )
+                         let n = m.Name
+                         orderby n
+                         select n ).Distinct();
+            foreach(string i in name )
+            {
+                Console.WriteLine(i);
+            }
 
             Console.ReadLine();
         }
+    }
+
+    class Employee
+    {
+        static Employee()
+        {
+            EmpCount = 1;
+        }
+        public Employee(string name, int departNum)
+        {
+            EmpNum = EmpCount++;
+            Name = name;
+            DepartNum = departNum;
+        }
+        public static int EmpCount;
+
+        public int EmpNum;
+        public string Name;
+        public int DepartNum;
+    }
+
+    class Department
+    {
+        public Department(int num, string name)
+        {
+            DepartNum = num;
+            DepartName = name;
+        }
+        public int DepartNum;
+        public string DepartName;
     }
 
     class Heater
@@ -76,6 +193,11 @@ namespace test_cs {
             {
                 Console.WriteLine( "Heater: OFF" );
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format( "Heater - Temp: {0}", Temp );
         }
     }
     class Cooler
@@ -162,7 +284,7 @@ namespace test_cs {
     {
         public Entity Create( int key )
         {
-            return new Entity( key );
+            return new Entity( key, 0 );
         }
     }
     public class Entity
@@ -170,10 +292,10 @@ namespace test_cs {
         public int Key { get; set; }
         public int Value { get; set; }
 
-        public Entity( int key)
+        public Entity( int key, int value )
         {
             Key = key;
-            Value = 0;
+            Value = value;
         }
     }
 
